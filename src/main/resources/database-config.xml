@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Config>
+    <DataSource>
+        <DBName>jdbc:mysql://localhost:3306/sso_integrator?useSSL=false</DBName>
+        <UserName>root</UserName>
+        <Password>123abc@A</Password>
+    </DataSource>
+</Config>
