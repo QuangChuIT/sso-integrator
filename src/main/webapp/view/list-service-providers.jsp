@@ -5,10 +5,10 @@
 <script src="../js/jquery.min.js" type="text/javascript"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<div id="middle">
+<div id="middle" class="container">
     <h2 style="margin-left: 10px; font-family: initial">Service Providers</h2>
     <a href="/LogoutServlet" accesskey="1" title="">Logout</a>
-    <a href="change-password.html" accesskey="1" title="">Change Password</a>
+    | <a href="change-password.html" accesskey="1" title="">Change Password</a>
     <div id="workArea" style="margin-left: 30px;">
         <script type="text/javascript">
             function removeItem(appid) {
@@ -41,18 +41,14 @@
                 String message = "Error while loading service providers" + " : " + e.getMessage();
             }
         %>
-        <table style="width: 70%">
-            <tbody>
-            <tr>
-                <td style="border:none !important">
-                    <table width="100%" id="ServiceProviders" class="table table-bordered">
+                    <table id="ServiceProviders" class="table table-striped">
                         <br/>
                         <thead>
-                        <tr style="white-space: nowrap">
-                            <th style="width: 20%;font-family: initial">Service Provider ID</th>
-                            <th style="width: 30%;font-family: initial">Description</th>
-                            <th style="width: 35%;font-family: initial">Client Key</th>
-                            <th style="width: 15%;font-family: initial">Actions</th>
+                        <tr>
+                            <th>Service Provider ID</th>
+                            <th>Description</th>
+                            <th>Client Key</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <%
@@ -64,13 +60,13 @@
                                 if (app != null) {
                         %>
                         <tr>
-                            <td style="font-family: initial;vertical-align: middle"><%=Encode.forHtml(app.getAppName())%>
+                            <td><%=Encode.forHtml(app.getAppName())%>
                             </td>
-                            <td style="font-family: initial;vertical-align: middle"><%=app.getDescription() != null ? Encode.forHtml(app.getDescription()) : ""%>
+                            <td><%=app.getDescription() != null ? Encode.forHtml(app.getDescription()) : ""%>
                             </td>
-                            <td style="font-family: initial;vertical-align: middle"><%=app.getConsumerKey() != null ? Encode.forHtml(app.getConsumerKey()) : ""%>
+                            <td><%=app.getConsumerKey() != null ? Encode.forHtml(app.getConsumerKey()) : ""%>
                             </td>
-                            <td style="width: 100px; white-space: nowrap; font-family: initial">
+                            <td>
                                 <input type="button" value="Edit" title="Edit Service Providers"
                                        class="btn btn-default btn-sm"
                                        onclick="javascript:location.href='load-service-provider.jsp?spName=<%=Encode.forUriComponent(app.getAppName())%>'"/>
@@ -87,10 +83,6 @@
                         </tbody>
                         <% } %>
                     </table>
-                </td>
-            </tr>
-            </tbody>
-        </table>
         <input type="button" value="Add Service Provider" class="btn btn-default btn-sm"
                onclick="javascript:location.href='add-service-provider.jsp'"/>
     </div>
