@@ -1,4 +1,4 @@
-package com.bsc.sso.authentication.endpoints;
+package com.bsc.sso.authentication.endpoints.oauth2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;

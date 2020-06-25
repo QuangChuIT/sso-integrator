@@ -1,4 +1,4 @@
-package com.bsc.sso.authentication.endpoints;
+package com.bsc.sso.authentication.endpoints.oauth2;
 
 import com.bsc.sso.authentication.SSOAuthenticationConstants;
 import com.bsc.sso.authentication.dao.OauthTokenDao;

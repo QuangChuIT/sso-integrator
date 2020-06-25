@@ -1,4 +1,4 @@
-package com.bsc.sso.authentication.endpoints;
+package com.bsc.sso.authentication.endpoints.oauth2;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bsc.sso.authentication.SSOAuthenticationConstants;

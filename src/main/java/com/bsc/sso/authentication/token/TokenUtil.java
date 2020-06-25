@@ -36,7 +36,7 @@ public class TokenUtil {
         }
     }
 
-    private static RSAKey toRSAKey(String keyPem) throws Exception {
+    public static RSAKey toRSAKey(String keyPem) throws Exception {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             if (keyPem.indexOf("BEGIN PRIVATE KEY") != -1) {

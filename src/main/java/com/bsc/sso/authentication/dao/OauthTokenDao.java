@@ -179,6 +179,48 @@ public class OauthTokenDao {
         }
     }
 
+    public OauthToken getTokenByTokenId(String tokenId) {
+        OauthToken oauthToken = null;
+        Connection connection = SSODatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        try {
+            prepStmt = connection.prepareStatement("select id, token, consumer_id, username, state, time_created, token_expire_time, refresh_token_expire_time, access_token, refresh_token" +
+                    " from oauth2_authorization_token where token=?");
+            prepStmt.setString(1, tokenId);
+            ResultSet rSet = prepStmt.executeQuery();
+            while (rSet.next()) {
+                oauthToken = new OauthToken();
+                oauthToken.setId(rSet.getInt(1));
+                oauthToken.setToken(rSet.getString(2));
+                oauthToken.setConsumerId(rSet.getInt(3));
+                oauthToken.setUserName(rSet.getString(4));
+                String appState = rSet.getString(5);
+                if (appState != null && !appState.isEmpty()) {
+                    OauthState state = OauthState.valueOf(appState);
+                    oauthToken.setState(state);
+                }
+                Timestamp timestamp = rSet.getTimestamp(6);
+                if (timestamp != null) {
+                    Date date = new Date(timestamp.getTime());
+                    oauthToken.setTimeCreated(date);
+                }
+                oauthToken.setTokenExpireTime(rSet.getLong(7));
+                oauthToken.setRefreshTokenExpireTime(rSet.getLong(8));
+                oauthToken.setAccessToken(rSet.getString(9));
+                oauthToken.setRefreshToken(rSet.getString(10));
+                // only select first result
+                break;
+            }
+            return oauthToken;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            SSODatabaseUtil.closeStatement(prepStmt);
+            SSODatabaseUtil.closeConnection(connection);
+        }
+    }
+
     public void deleteToken(OauthToken oauthToken) {
         String accessToken = oauthToken.getAccessToken();
         Connection connection = SSODatabaseUtil.getDBConnection();

@@ -14,4 +14,6 @@ public class SSOAuthenticationConstants {
     public static final String REDIRECT_URI_COOKIE = "redirect_uri";
     //Constants used for OAuth Connect Configuration UI
     public static final String CALLBACK_URL_REGEXP_PREFIX = "regexp=";
+    public static final String OAUTH_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri";
+    public static final String OAUTH_ID_TOKEN_HINT = "id_token_hint";
 }
