@@ -7,6 +7,8 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <div id="middle">
     <h2 style="margin-left: 10px; font-family: initial">Service Providers</h2>
+    <a href="/LogoutServlet" accesskey="1" title="">Logout</a>
+    <a href="change-password.html" accesskey="1" title="">Change Password</a>
     <div id="workArea" style="margin-left: 30px;">
         <script type="text/javascript">
             function removeItem(appid) {
