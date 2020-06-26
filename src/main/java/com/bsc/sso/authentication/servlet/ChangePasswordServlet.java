@@ -39,16 +39,15 @@ public class ChangePasswordServlet extends HttpServlet {
             err = "Password and Confirm Password do not match!";
         }
 
-        RequestDispatcher rd = getServletContext().getRequestDispatcher("/view/change-password.html");
-        PrintWriter out= response.getWriter();
+        RequestDispatcher rd = getServletContext().getRequestDispatcher("/view/change-password.jsp");
         if (err != null) {
-            out.println("<font color=red>"+ err+ "</font>");
+            request.setAttribute("err", err);
         } else {
             // change password success
             userDao.changePassword(user, newPassword);
-            out.println("<font color=green>Change Password success!</font>");
+            request.setAttribute("msg", "Change Password success!");
         }
 
-        rd.include(request, response);
+        rd.forward(request, response);
     }
 }
