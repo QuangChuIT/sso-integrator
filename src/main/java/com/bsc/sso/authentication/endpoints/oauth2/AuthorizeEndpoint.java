@@ -1,6 +1,7 @@
 package com.bsc.sso.authentication.endpoints.oauth2;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.bsc.sso.authentication.OauthSessionManager;
 import com.bsc.sso.authentication.SSOAuthenticationConstants;
 import com.bsc.sso.authentication.dao.OauthCodeDao;
 import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
@@ -62,6 +63,7 @@ public class AuthorizeEndpoint {
             // validate request
             this.validate(oauthRequest);
 
+            //create response for authorize enpoint
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder =
                     OAuthASResponse.authorizationResponse(request, HttpServletResponse.SC_FOUND);
 
@@ -129,15 +131,18 @@ public class AuthorizeEndpoint {
      */
     private Response generateAuthCode(OAuthAuthzRequest oauthRequest, OAuthASResponse.OAuthAuthorizationResponseBuilder builder, String username)
             throws URISyntaxException, OAuthSystemException {
+
         // generate auth code
         OAuthIssuerImpl oauthIssuerImpl = new OAuthIssuerImpl(new UUIDValueGenerator());
         final String authorizationCode = oauthIssuerImpl.authorizationCode();
         String clientId = oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID);
-        oauthCodeDao.addAuthCode(authorizationCode, clientId, username);
-        builder.setCode(authorizationCode);
-
         //Build response and redirect to given in the request URI
         String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
+        oauthCodeDao.addAuthCode(authorizationCode, clientId, username);
+        builder.setCode(authorizationCode);
+        String session_state = OauthSessionManager.getSessionStateParam(clientId, redirectURI, username);
+        builder.setParam("session_state", session_state);
+
         final OAuthResponse oAuthResponse = builder.location(redirectURI).buildQueryMessage();
         URI url = new URI(oAuthResponse.getLocationUri());
 

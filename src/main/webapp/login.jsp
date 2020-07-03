@@ -1,22 +1,17 @@
 <title>Login page</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<style>
-    .form-conatiner {
-        padding: 50px 60px;
-        margin-top: 20vh;
-    }
-</style>
 <div class="container-fluid bg">
     <div class="row">
         <div class="col-md-5 col-sm-4 col-xs-12"></div>
         <div class="col-md-2 col-sm-4 col-xs-12">
-            <form class="form-conatiner" action="LoginServlet" method="post">
+            <form class="form-container" action="LoginServlet" method="post">
                 <%
-                    if(request.getAttribute("err") != null) {
+                    if (request.getAttribute("err") != null) {
                 %>
                 <div class="form-group">
-                    <label style="color: red"><%=request.getAttribute("err")%></label>
+                    <label style="color: red"><%=request.getAttribute("err")%>
+                    </label>
                 </div>
                 <%
                     }

@@ -72,11 +72,13 @@
             <artifactId>org.apache.oltu.oauth2.common</artifactId>
             <version>${version.oltu}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.oltu.oauth2</groupId>
             <artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
             <version>${version.oltu}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.oltu.oauth2</groupId>
             <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>

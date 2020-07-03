@@ -30,6 +30,7 @@ public class LoginServlet extends HttpServlet {
         String user = request.getParameter("user");
         String pwd = request.getParameter("pwd");
 
+        //verify username password
         User authenUser = userDao.getByUsername(user);
 
         if(authenUser != null && authenUser.getPassword().equals(pwd)){
