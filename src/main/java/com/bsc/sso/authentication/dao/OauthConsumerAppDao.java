@@ -9,6 +9,7 @@ import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.util.SSODatabaseUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 public class OauthConsumerAppDao {
-    private static final Log log = LogFactory.getLog(OauthConsumerAppDao.class);
+    private static final Logger log = Logger.getLogger(OauthConsumerAppDao.class);
 
     public OauthConsumerAppDao() {
     }

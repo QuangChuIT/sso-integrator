@@ -12,6 +12,7 @@ import com.bsc.sso.authentication.token.TokenFactory;
 import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
@@ -109,7 +110,7 @@ public class TokenEndpoint {
                     .buildJSONMessage();
             return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error when get token " + e);
             return null;
         }
     }
@@ -233,4 +234,6 @@ public class TokenEndpoint {
         }
         return true;
     }
+
+    private static final Logger LOGGER = Logger.getLogger(TokenEndpoint.class);
 }

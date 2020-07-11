@@ -3,6 +3,6 @@
     <DataSource>
         <DBName>jdbc:mysql://localhost:3306/sso_integrator?useSSL=false</DBName>
         <UserName>root</UserName>
-        <Password>bkav@1234</Password>
+        <Password>123abc@A</Password>
     </DataSource>
 </Config>

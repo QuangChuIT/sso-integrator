@@ -6,6 +6,7 @@ import com.bsc.sso.authentication.model.OauthState;
 import com.bsc.sso.authentication.model.OauthToken;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.util.SSODatabaseUtil;
+import org.apache.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Date;
 
 public class OauthCodeDao {
 
-    private OauthConsumerAppDao oauthConsumerAppDao = new OauthConsumerAppDao();
+    private final OauthConsumerAppDao oauthConsumerAppDao = new OauthConsumerAppDao();
 
     public final static int TIME_EXPIRED = 100000000;
 
@@ -104,7 +105,7 @@ public class OauthCodeDao {
             }
             return oauthCode;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Error when get code " + e);
             return null;
         } finally {
             SSODatabaseUtil.closeStatement(prepStmt);
@@ -139,4 +140,6 @@ public class OauthCodeDao {
 
         return rpDOs;
     }
+
+    private final static Logger LOGGER = Logger.getLogger(OauthCodeDao.class);
 }

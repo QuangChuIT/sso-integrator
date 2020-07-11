@@ -6,6 +6,7 @@ import com.bsc.sso.authentication.token.object.TokenHeader;
 import com.bsc.sso.authentication.token.object.TokenPayload;
 import com.bsc.sso.authentication.util.FileUtil;
 import com.bsc.sso.authentication.util.MemcacheUtil;
+import org.apache.log4j.Logger;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -39,7 +40,9 @@ public class TokenFactory {
         Algorithm alg = TokenUtil.getAlgWithRSA512(pemKey);
 
         Token token = new Token(alg, tokenHeader, tokenPayload);
-        System.out.println(token.getToken());
+        LOGGER.info("IdToken : " + token.getToken());
         return token.getToken();
     }
+
+    private final static Logger LOGGER = Logger.getLogger(TokenFactory.class);
 }

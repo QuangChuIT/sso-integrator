@@ -16,6 +16,7 @@ import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
+import org.apache.log4j.Logger;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.issuer.UUIDValueGenerator;
@@ -118,6 +119,7 @@ public class CallBackEndpoint {
             return response;
 
         } catch (OAuthProblemException e) {
+            log.error(e);
             final Response.ResponseBuilder responseBuilder = Response.status(HttpServletResponse.SC_FOUND);
             String redirectUri = ConfigUtil.getInstance().getProperty("errorUri");
             final OAuthResponse response =
@@ -153,4 +155,6 @@ public class CallBackEndpoint {
         }
     }
 
+
+    private final Logger log = Logger.getLogger(CallBackEndpoint.class);
 }

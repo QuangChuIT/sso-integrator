@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.bsc.sso.authentication</groupId>
-    <artifactId>sso-authentication</artifactId>
+    <artifactId>sso-integrator</artifactId>
     <version>4.5.2</version>
     <packaging>war</packaging>
 
@@ -185,6 +185,6 @@
     </dependencies>
 
     <build>
-        <finalName>sso-authentication</finalName>
+        <finalName>sso-integrator</finalName>
     </build>
 </project>
