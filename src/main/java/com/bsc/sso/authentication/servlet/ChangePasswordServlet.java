@@ -1,6 +1,7 @@
 package com.bsc.sso.authentication.servlet;
 
 import com.bsc.sso.authentication.dao.UserDao;
+import com.bsc.sso.authentication.util.cryptWithMD5Util;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 
 @WebServlet("/ChangePasswordServlet")
 public class ChangePasswordServlet extends HttpServlet {
@@ -39,12 +41,19 @@ public class ChangePasswordServlet extends HttpServlet {
             err = "Password and Confirm Password do not match!";
         }
 
-        RequestDispatcher rd = getServletContext().getRequestDispatcher("/view/change-password.jsp");
+        String newPass = null;
+        try {
+            newPass = cryptWithMD5Util.cryptWithMD5(newPassword);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        RequestDispatcher rd = getServletContext().getRequestDispatcher("/changing-password");
         if (err != null) {
             request.setAttribute("err", err);
         } else {
             // change password success
-            userDao.changePassword(user, newPassword);
+            userDao.changePassword(user, newPass);
             request.setAttribute("msg", "Change Password success!");
         }
 

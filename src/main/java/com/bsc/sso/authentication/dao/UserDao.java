@@ -16,7 +16,7 @@ public class UserDao {
         Connection connection = SSODatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            prepStmt = connection.prepareStatement("select id, username, password from User where username=?");
+            prepStmt = connection.prepareStatement("select id, username, password from user where username=?");
             prepStmt.setString(1, username);
             ResultSet rSet = prepStmt.executeQuery();
             while (rSet.next()) {
@@ -41,7 +41,7 @@ public class UserDao {
         Connection connection = SSODatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            prepStmt = connection.prepareStatement("update User set password=? where username=?");
+            prepStmt = connection.prepareStatement("update user set password=? where username=?");
             prepStmt.setString(1, password);
             prepStmt.setString(2, username);
             prepStmt.executeUpdate();

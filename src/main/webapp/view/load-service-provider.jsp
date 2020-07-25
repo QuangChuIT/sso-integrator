@@ -3,50 +3,12 @@
 <%@ page import="javax.swing.*" %>
 <%@ page import="com.bsc.sso.authentication.model.OauthState" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-
+<title>Edit Service Provider</title>
 <script src="../js/jquery.min.js" type="text/javascript"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <link href="../css/app.css" rel="stylesheet" type="text/css">
-
-<script type="text/javascript">
-    function updateAppOnclick() {
-        var spName = document.getElementById("spName").value;
-        var callbackUrl = document.getElementById("spCallbackUrl").value;
-        var tokenExpiryTime = document.getElementById("spTokenExpiryTime").value;
-        var tokenRefreshExpiryTime = document.getElementById("spRefreshTokenExpiryTime").value;
-        if (spName === '' || callbackUrl === '' || tokenExpiryTime === '' || tokenRefreshExpiryTime === '') {
-            alert("Field is required!");
-        } else {
-            document.getElementById("configure-sp-form").submit();
-            return true;
-        }
-        return false;
-    }
-
-    function updateBeanAndPostTo(postURL, data) {
-        $.ajax({
-            type: 'POST',
-            url: postURL,
-            data: data,
-            success: function (data, textStatus, request) {
-                window.location = request.getResponseHeader('redirectUrl');
-            }
-
-        });
-    }
-
-    function showHidePassword(element, inputId) {
-        if ($(element).text() == 'Show') {
-            document.getElementById(inputId).type = 'text';
-            $(element).text('Hide');
-        } else {
-            document.getElementById(inputId).type = 'password';
-            $(element).text('Show');
-        }
-    }
-
-</script>
+<link rel="stylesheet" href="/css/tables.css">
 
 <%
     OauthConsumerApp applications = null;
@@ -56,20 +18,20 @@
         JOptionPane.showMessageDialog(null, "Load service provider fail!");
 %>
 <script>
-    location.href = "list-service-providers.jsp";
+    location.href = "/service-providers";
 </script>
 <%
         return;
     }
 %>
 
-<div id="middle">
-    <h2 style="margin-left: 10px; font-family: initial">Service Providers</h2>
+<div id="middle" class="container">
+    <h2 style="font-family: initial">Service Providers</h2>
     <a href="/LogoutServlet" accesskey="1" title="">Logout</a>
-    | <a href="change-password.jsp" accesskey="1" title="">Change Password</a>
-    <div id="workArea" style="margin-left: 30px">
+    | <a href="/changing-password" accesskey="1" title="">Change Password</a>
+    <div style="margin-top: 50px"  id="workArea" style="margin-left: 30px">
         <form id="configure-sp-form" method="post" name="configure-sp-form" method="post"
-              action="configure-service-provider-finish-ajaxprocessor.jsp">
+              action="/ConfigureServiceProvider">
             <input type="hidden" name="oldSPName" id="oldSPName" value="<%=applications.getAppName()%>"/>
             <input type="hidden" name="spClientKey" id="spClientKey" value="<%=applications.getConsumerKey()%>"/>
             <div>
@@ -133,18 +95,18 @@
             </div>
             <div style="margin-left: 10px">
                 <br>
-                <table id="samlTable" style="width: 70%" class="table table-bordered">
+                <table id="samlTable" style="width: 90%" class="table table-bordered">
                     <tr style="white-space: nowrap">
-                        <th style="width: 34%;font-family: initial">OAuth Client Key</th>
-                        <th style="width: 41%;font-family: initial">OAuth Client Secret</th>
-                        <th style="width: 25%;font-family: initial">Actions</th>
+                        <th style="width: 34%;font-family: initial;vertical-align: middle">OAuth Client Key</th>
+                        <th style="width: 41%;font-family: initial;vertical-align: middle">OAuth Client Secret</th>
+                        <th style="width: 25%;font-family: initial;vertical-align: middle">Actions</th>
                     </tr>
                     <tr>
                         <td style="font-family: initial;vertical-align: middle"><%=applications.getConsumerKey()%>
                         </td>
                         <td style="font-family: initial;vertical-align: middle">
                             <div>
-                                <input style="border: none; background: white; margin-top: 2px; width: 85%; font-size: 16px"
+                                <input style="border: none; background: none; margin-top: 2px; width: 85%; font-size: 16px"
                                        type="password" autocomplete="off"
                                        id="spClientSecret"
                                        name="spClientSecret"
@@ -159,13 +121,11 @@
                         <td style="font-family: initial;vertical-align: middle">
                             <div>
                                 <a title="Revoke Service Providers"
-                                   onclick="updateBeanAndPostTo('../view/edit-app-ajaxprocessor.jsp','spName=<%=Encode.forUriComponent(applications.getAppName())%>&consumerkey=<%=Encode.forUriComponent(applications.getConsumerKey())%>&action=revoke');"
-                                   class="icon-link"
-                                   style="background-image: url(../images/disabled.png)">Revoke</a>
+                                   onclick="updateBeanAndPostTo('/EditAppAjaxProcessor','spName=<%=Encode.forUriComponent(applications.getAppName())%>&consumerkey=<%=Encode.forUriComponent(applications.getConsumerKey())%>&action=revoke');"
+                                   class="icon-link">Revoke</a>
                                 <a title="Regenerate Secret Key"
-                                   onclick="updateBeanAndPostTo('../view/edit-app-ajaxprocessor.jsp','spName=<%=Encode.forUriComponent(applications.getAppName())%>&consumerkey=<%=Encode.forUriComponent(applications.getConsumerKey())%>&action=regenerate');"
-                                   class="icon-link"
-                                   style="background-image: url(../images/enabled.png)">Regenerate Secret</a>
+                                   onclick="updateBeanAndPostTo('/EditAppAjaxProcessor','spName=<%=Encode.forUriComponent(applications.getAppName())%>&consumerkey=<%=Encode.forUriComponent(applications.getConsumerKey())%>&action=regenerate');"
+                                   class="icon-link">Regenerate Secret</a>
                             </div>
                         </td>
                     </tr>
@@ -174,9 +134,49 @@
         </form>
     </div>
     <!-- sectionSub Div -->
-    <div style="margin-left: 40px">
+    <div style="margin-left: 40px;padding-left: 600px;margin-top: 30px">
         <input type="button" class="btn btn-default btn-sm" value="Update" onclick="updateAppOnclick();"/>
         <input type="button" class="btn btn-default btn-sm" value="Cancel"
-               onclick="javascript:location.href='list-service-providers.jsp'"/>
+               onclick="javascript:location.href='/service-providers'"/>
+
     </div>
 </div>
+
+<script type="text/javascript">
+    function updateAppOnclick() {
+        var spName = document.getElementById("spName").value;
+        var callbackUrl = document.getElementById("spCallbackUrl").value;
+        var tokenExpiryTime = document.getElementById("spTokenExpiryTime").value;
+        var tokenRefreshExpiryTime = document.getElementById("spRefreshTokenExpiryTime").value;
+        if (spName === '' || callbackUrl === '' || tokenExpiryTime === '' || tokenRefreshExpiryTime === '') {
+            alert("Field is required!");
+        } else {
+            document.getElementById("configure-sp-form").submit();
+            return true;
+        }
+        return false;
+    }
+
+    function updateBeanAndPostTo(postURL, data) {
+        $.ajax({
+            type: 'POST',
+            url: postURL,
+            data: data,
+            success: function (data, textStatus, request) {
+                window.location = request.getResponseHeader('redirectUrl');
+            }
+
+        });
+    }
+
+    function showHidePassword(element, inputId) {
+        if ($(element).text() == 'Show') {
+            document.getElementById(inputId).type = 'text';
+            $(element).text('Hide');
+        } else {
+            document.getElementById(inputId).type = 'password';
+            $(element).text('Show');
+        }
+    }
+
+</script>
