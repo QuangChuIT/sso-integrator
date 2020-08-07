@@ -2,25 +2,17 @@ package com.bsc.sso.authentication.endpoints.oauth2;
 
 import com.bsc.sso.authentication.OauthSessionManager;
 import com.bsc.sso.authentication.SSOAuthenticationConstants;
-import com.bsc.sso.authentication.authen.Authenticate;
 import com.bsc.sso.authentication.authen.AuthenticateFactory;
-import com.bsc.sso.authentication.authen.bkav.BkavAuthenticate;
 import com.bsc.sso.authentication.dao.OauthCodeDao;
 import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
-import com.bsc.sso.authentication.soap.SsoCheckResponse;
-import com.bsc.sso.authentication.soap.WebService;
-import com.bsc.sso.authentication.soap.WebServiceLocator;
-import com.bsc.sso.authentication.soap.WebServiceSoap_PortType;
 import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.log4j.Logger;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.issuer.UUIDValueGenerator;
-import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
@@ -28,22 +20,16 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
-import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -53,10 +39,10 @@ import java.util.Map;
 @Path("/callback")
 public class CallBackEndpoint {
 
-    private OauthConsumerAppDao consumerAppDao = new OauthConsumerAppDao();
-    private OauthCodeDao oauthCodeDao = new OauthCodeDao();
-    private OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
-    private AuthenticateFactory authenticateFactory = new AuthenticateFactory();
+    private final OauthConsumerAppDao consumerAppDao = new OauthConsumerAppDao();
+    private final OauthCodeDao oauthCodeDao = new OauthCodeDao();
+    private final OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
+    private final AuthenticateFactory authenticateFactory = new AuthenticateFactory();
 
     /**
      * @param request
@@ -68,6 +54,8 @@ public class CallBackEndpoint {
     public Response authorize(@Context HttpServletRequest request)
             throws URISyntaxException, OAuthSystemException {
         try {
+
+            String typeOfSSO = request.getParameter("type");
 
             Map<String, String> userInfos = authenticateFactory.authentication(request, "vps");
 
@@ -120,13 +108,7 @@ public class CallBackEndpoint {
 
         } catch (OAuthProblemException e) {
             log.error(e);
-            final Response.ResponseBuilder responseBuilder = Response.status(HttpServletResponse.SC_FOUND);
-            String redirectUri = ConfigUtil.getInstance().getProperty("errorUri");
-            final OAuthResponse response =
-                    OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
-                            .error(e).location(redirectUri).buildQueryMessage();
-            final URI location = new URI(response.getLocationUri());
-            return responseBuilder.location(location).build();
+            return CommonUtil.buildErrorResponse(e);
         }
     }
 

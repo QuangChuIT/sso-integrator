@@ -1,17 +1,14 @@
 package com.bsc.sso.authentication.endpoints.oauth2;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bsc.sso.authentication.OauthSessionManager;
-import com.bsc.sso.authentication.SSOAuthenticationConstants;
 import com.bsc.sso.authentication.dao.OauthCodeDao;
 import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.loginurl.LoginUrlFactory;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.util.CommonUtil;
-import com.bsc.sso.authentication.util.ConfigUtil;
 import com.bsc.sso.authentication.validate.CookieValidate;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
+import org.apache.log4j.Logger;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.issuer.UUIDValueGenerator;
 import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
@@ -22,13 +19,11 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
-import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -84,13 +79,8 @@ public class AuthorizeEndpoint {
             // Send response to given URI
             return Response.status(response.getResponseStatus()).location(url).cookie(cookies).build();
         } catch (OAuthProblemException e) {
-            final Response.ResponseBuilder responseBuilder = Response.status(HttpServletResponse.SC_FOUND);
-            String redirectUri = ConfigUtil.getInstance().getProperty("errorUri");
-            final OAuthResponse response =
-                    OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
-                            .error(e).location(redirectUri).buildQueryMessage();
-            final URI location = new URI(response.getLocationUri());
-            return responseBuilder.location(location).build();
+            LOGGER.error(e);
+            return CommonUtil.buildErrorResponse(e);
         }
     }
 
@@ -148,4 +138,6 @@ public class AuthorizeEndpoint {
 
         return Response.status(oAuthResponse.getResponseStatus()).location(url).build();
     }
+
+    private final static Logger LOGGER = Logger.getLogger(AuthorizeEndpoint.class);
 }

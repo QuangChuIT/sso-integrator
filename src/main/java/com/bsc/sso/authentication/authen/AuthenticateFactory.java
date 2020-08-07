@@ -1,6 +1,7 @@
 package com.bsc.sso.authentication.authen;
 
 import com.bsc.sso.authentication.authen.bkav.BkavAuthenticate;
+import com.bsc.sso.authentication.authen.cas.CasAuthenticate;
 import com.bsc.sso.authentication.authen.vps.VPSAuthenticate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,9 @@ public class AuthenticateFactory {
                 break;
             case "vps":
                 authenticate = new VPSAuthenticate();
+                break;
+            case "cas":
+                authenticate = new CasAuthenticate();
                 break;
             default:
                 throw new AuthenticateException("Method login is not support");

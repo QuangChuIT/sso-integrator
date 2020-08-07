@@ -6,12 +6,19 @@ import com.bsc.sso.authentication.token.TokenUtil;
 import com.bsc.sso.authentication.token.object.Token;
 import com.bsc.sso.authentication.token.object.TokenHeader;
 import com.bsc.sso.authentication.token.object.TokenPayload;
-import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 
 public class CommonUtil {
@@ -89,9 +96,9 @@ public class CommonUtil {
     public static void setParamsAsCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        for (int i = 0; i < cookies.length; i++) {
-            String name = cookies[i].getName();
-            String value = cookies[i].getValue();
+        for (Cookie cookie : cookies) {
+            String name = cookie.getName();
+            String value = cookie.getValue();
             if (name.equals(SSOAuthenticationConstants.CLIENT_ID_COOKIE)
                     || name.equals(SSOAuthenticationConstants.RESPONSE_TYPE_COOKIE)
                     || name.equals(SSOAuthenticationConstants.REDIRECT_URI_COOKIE)) {
@@ -113,5 +120,15 @@ public class CommonUtil {
             return authTokenHeader.substring(headerPrefix.length());
         }
         return null;
+    }
+
+    public static Response buildErrorResponse(OAuthProblemException e) throws OAuthSystemException, URISyntaxException {
+        final Response.ResponseBuilder responseBuilder = Response.status(HttpServletResponse.SC_FOUND);
+        String redirectUri = ConfigUtil.getInstance().getProperty("errorUri");
+        final OAuthResponse response =
+                OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
+                        .error(e).location(redirectUri).buildQueryMessage();
+        final URI location = new URI(response.getLocationUri());
+        return responseBuilder.location(location).build();
     }
 }
