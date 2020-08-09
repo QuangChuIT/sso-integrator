@@ -1,16 +1,10 @@
 package com.bsc.sso.authentication.http;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -20,22 +14,15 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicHeader;
-
-import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.KeyManagementException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class SendRequest {
-
 
     public HttpResponse sendRequest(String message, String endpoint) throws GeneralSecurityException,
             ExecutionException, InterruptedException {
@@ -47,8 +34,12 @@ public class SendRequest {
         return sendAsync(endpoint, message, token).get();
     }
 
-    public HttpResponse getRequest(String endpoint, String token) throws GeneralSecurityException, ExecutionException, InterruptedException {
+    public HttpResponse getRequest(String endpoint, String token) throws GeneralSecurityException {
         return getAsync(endpoint, token);
+    }
+
+    public HttpResponse getRequest(String endpoint) throws GeneralSecurityException {
+        return getAsync(endpoint);
     }
 
     /**
@@ -99,13 +90,24 @@ public class SendRequest {
             CloseableHttpClient httpClient = null;
             SSLContextBuilder builder = new SSLContextBuilder();
             builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
                     builder.build());
             httpClient = HttpClients.custom().setSSLSocketFactory(
-                    sslsf).build();
+                    sslConnectionSocketFactory).build();
             return httpClient.execute(httpGet);
         } catch (Exception e) {
             log.error("Error get async exception =" + e);
+            throw new GeneralSecurityException(e);
+        }
+    }
+
+    private HttpResponse getAsync(String endpoint) throws GeneralSecurityException {
+        try {
+            HttpGet httpGet = prepareGet(endpoint);
+            CloseableHttpClient httpClient = HttpClients.createSystem();
+            return httpClient.execute(httpGet);
+        } catch (Exception e) {
+            log.error("Error when get async exception " + e);
             throw new GeneralSecurityException(e);
         }
     }

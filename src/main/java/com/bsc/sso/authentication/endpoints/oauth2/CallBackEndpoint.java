@@ -57,7 +57,7 @@ public class CallBackEndpoint {
 
             String typeOfSSO = request.getParameter("type");
 
-            Map<String, String> userInfos = authenticateFactory.authentication(request, "vps");
+            Map<String, String> userInfos = authenticateFactory.authentication(request, typeOfSSO);
 
             // set params from cookie
             CommonUtil.setParamsAsCookie(request);
@@ -101,7 +101,6 @@ public class CallBackEndpoint {
             String vpsToken = request.getParameter("token");
             NewCookie tokenCookie = new NewCookie(SSOAuthenticationConstants.TOKEN, vpsToken, "/", null, null, cookieExpireTime, false);
 
-
             //Send response to given URI
             Response response = Response.status(oAuthResponse.getResponseStatus()).location(url).cookie(oauthCookie).cookie(tokenCookie).build();
             return response;
@@ -128,7 +127,7 @@ public class CallBackEndpoint {
         // validate oauth code
         String responseType = (String) request.getAttribute(OAuth.OAUTH_RESPONSE_TYPE);
         if (!responseType.equals(ResponseType.CODE.toString())) {
-            throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST, "Authorize is only support authz by code!");
+            throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST, "Authorize is only support authorization by code!");
         }
         // validate call_back_url
         String redirectUri = (String) request.getAttribute(OAuth.OAUTH_REDIRECT_URI);

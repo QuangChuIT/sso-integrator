@@ -1,10 +1,14 @@
 package com.bsc.sso.authentication.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Objects;
 
 public class FileUtil {
 
@@ -15,8 +19,8 @@ public class FileUtil {
         BufferedReader bufferedReader = null;
 
         try {
-            ClassLoader classLoader = new FileUtil().getClass().getClassLoader();
-            String urlEncoded = classLoader.getResource(fileName).getFile();
+            ClassLoader classLoader = FileUtil.class.getClassLoader();
+            String urlEncoded = Objects.requireNonNull(classLoader.getResource(fileName)).getFile();
             String urlDecoded = URLDecoder.decode(urlEncoded, "UTF-8");
             File file = new File(urlDecoded);
             bufferedReader = new BufferedReader(new FileReader(file));
@@ -29,6 +33,7 @@ public class FileUtil {
 
             return stringBuilder.toString();
         } catch (Exception e) {
+            LOGGER.error("Error when get string form resource " + e.getMessage());
             throw e;
         } finally {
             if (bufferedReader != null) {
@@ -37,4 +42,6 @@ public class FileUtil {
 
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 }

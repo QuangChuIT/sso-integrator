@@ -34,8 +34,7 @@ public class CommonUtil {
      * @return
      */
     public static String getFullURLSSORedirect(HttpServletRequest request) {
-        String callbackUrl = CommonUtil.getContextPath(request) + SSOAuthenticationConstants.CALLBACK_URL;
-        return callbackUrl;
+        return CommonUtil.getContextPath(request) + SSOAuthenticationConstants.CALLBACK_URL;
     }
 
     public static String getContextPath(HttpServletRequest request) {

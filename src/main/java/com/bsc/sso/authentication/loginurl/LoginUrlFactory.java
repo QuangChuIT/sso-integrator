@@ -1,6 +1,7 @@
 package com.bsc.sso.authentication.loginurl;
 
 import com.bsc.sso.authentication.loginurl.bkav.BkavLoginUrl;
+import com.bsc.sso.authentication.loginurl.cas.CasLoginUrl;
 import com.bsc.sso.authentication.loginurl.vps.VPSLoginUrl;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ public class LoginUrlFactory {
                 break;
             case "vps":
                 loginUrl = new VPSLoginUrl();
+                break;
+            case "cas":
+                loginUrl = new CasLoginUrl();
                 break;
             default:
                 throw new LoginUrlException("Method login is not support");

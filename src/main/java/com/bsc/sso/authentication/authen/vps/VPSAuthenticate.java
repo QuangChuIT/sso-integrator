@@ -44,9 +44,9 @@ public class VPSAuthenticate implements Authenticate {
     public static Map<String, String> toMap(JSONObject object) throws JSONException {
         Map<String, String> map = new HashMap<>();
 
-        Iterator<String> keysItr = object.keys();
+        Iterator keysItr = object.keys();
         while (keysItr.hasNext()) {
-            String key = keysItr.next();
+            String key = (String) keysItr.next();
             String value = object.get(key).toString();
             map.put(key, value);
         }

@@ -46,7 +46,7 @@ public class ConfigUtil {
 
     private void initDatabaseConfig() {
         try {
-            ClassLoader classLoader = new FileUtil().getClass().getClassLoader();
+            ClassLoader classLoader = FileUtil.class.getClassLoader();
             String urlEncoded = classLoader.getResource("database-config.xml").getFile();
             String urlDecoded = URLDecoder.decode(urlEncoded, "UTF-8");
             File file = new File(urlDecoded);
@@ -57,7 +57,7 @@ public class ConfigUtil {
             String dbName = document.getElementsByTagName("DBName").item(0).getTextContent();
             String userName = document.getElementsByTagName("UserName").item(0).getTextContent();
             String password = document.getElementsByTagName("Password").item(0).getTextContent();
-            dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+            dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
             dataSource.setUrl(dbName);
             dataSource.setUsername(userName);
             dataSource.setPassword(password);

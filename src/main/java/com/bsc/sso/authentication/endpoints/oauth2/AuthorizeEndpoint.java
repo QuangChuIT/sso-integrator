@@ -37,11 +37,11 @@ import java.net.URISyntaxException;
 @Path("/authorize")
 public class AuthorizeEndpoint {
 
-    private OauthCodeDao oauthCodeDao = new OauthCodeDao();
-    private OauthConsumerAppDao consumerAppDao = new OauthConsumerAppDao();
-    private OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
-    private CookieValidate cookieValidate = new CookieValidate();
-    private LoginUrlFactory loginUrlFactory = new LoginUrlFactory();
+    private final OauthCodeDao oauthCodeDao = new OauthCodeDao();
+    private final OauthConsumerAppDao consumerAppDao = new OauthConsumerAppDao();
+    private final OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
+    private final CookieValidate cookieValidate = new CookieValidate();
+    private final LoginUrlFactory loginUrlFactory = new LoginUrlFactory();
 
     /**
      * @param request
@@ -53,12 +53,14 @@ public class AuthorizeEndpoint {
     public Response authorize(@Context HttpServletRequest request)
             throws URISyntaxException, OAuthSystemException {
         try {
+            String type = request.getParameter("type");
+
             OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
 
             // validate request
             this.validate(oauthRequest);
 
-            //create response for authorize enpoint
+            //create response for authorize endpoint
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder =
                     OAuthASResponse.authorizationResponse(request, HttpServletResponse.SC_FOUND);
 
@@ -70,7 +72,7 @@ public class AuthorizeEndpoint {
 
             // Build response and redirect to given in the request URI
             // String redirectURI = ConfigUtil.getInstance().getProperty(SSOAuthenticationConstants.CONNECT_SSO_SERVER_URL) + "?ReturnURL=" + getFullURLSSORedirect(request);
-            String redirectURI = loginUrlFactory.getLoginUrl(request, "vps");
+            String redirectURI = loginUrlFactory.getLoginUrl(request, type);
             final OAuthResponse response = builder.location(redirectURI).buildQueryMessage();
             URI url = new URI(response.getLocationUri());
             // save params before redirect to cookie
@@ -100,7 +102,7 @@ public class AuthorizeEndpoint {
         // validate oauth code
         String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE);
         if (!responseType.equals(ResponseType.CODE.toString())) {
-            throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST, "Authorize is only support authz by code!");
+            throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST, "Authorize is only support authorization by code!");
         }
         // validate call_back_url
         String redirectUri = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
