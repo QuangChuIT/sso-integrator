@@ -48,21 +48,16 @@ public class EditAppAjaxProcessorServlet extends HttpServlet {
                     if (OauthState.INACTIVE.name().equalsIgnoreCase(oauthAppState)) {
                         serviceClient.updateOauthApplicationState(consumerkey, OauthState.ACTIVE.name());
                     }
-                    JOptionPane.showMessageDialog(null, "Client Secret successfully updated for Client ID: " + consumerkey);
                 } else if (Constants.ACTION_REVOKE.equalsIgnoreCase(action)) {
                     String oauthAppState = serviceClient.getOauthApplicationState(consumerkey);
                     if (OauthState.INACTIVE.name().equalsIgnoreCase(oauthAppState)) {
-                        JOptionPane.showMessageDialog(null, "Application is already revoked.");
                     } else {
                         serviceClient.updateOauthApplicationState(consumerkey, OauthState.INACTIVE.name());
-                        JOptionPane.showMessageDialog(null, "Application successfully revoked.");
                     }
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error when update service provider!");
                 response.sendError(HttpServletResponse.SC_EXPECTATION_FAILED);
                 return;
-            } finally {
             }
         }
 
