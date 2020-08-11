@@ -68,15 +68,17 @@ public class CommonUtil {
     }
 
     public static NewCookie[] getCookieAsParams(HttpServletRequest request) {
-        NewCookie[] result = new NewCookie[3];
+        NewCookie[] result = new NewCookie[4];
         String clientId = request.getParameter(OAuth.OAUTH_CLIENT_ID);
         String responseType = request.getParameter(OAuth.OAUTH_RESPONSE_TYPE);
         String redirectUri = request.getParameter(OAuth.OAUTH_REDIRECT_URI);
+        String type = request.getParameter(SSOAuthenticationConstants.SSO_INTEGRATOR_TYPE_PARAM);
 //        String domainName = request.getServerName();
 //        String domainNamePrefix = domainName.substring(domainName.indexOf("."), domainName.length());
         result[0] = new NewCookie(SSOAuthenticationConstants.CLIENT_ID_COOKIE, clientId, "/", null, null, Integer.MAX_VALUE, false);
         result[1] = new NewCookie(SSOAuthenticationConstants.RESPONSE_TYPE_COOKIE, responseType, "/", null, null, Integer.MAX_VALUE, false);
         result[2] = new NewCookie(SSOAuthenticationConstants.REDIRECT_URI_COOKIE, redirectUri, "/", null, null, Integer.MAX_VALUE, false);
+        result[3] = new NewCookie(SSOAuthenticationConstants.SSO_INTEGRATOR_TYPE_COOKIE, type, "/", null, null, Integer.MAX_VALUE, false);
         return result;
     }
 

@@ -38,7 +38,6 @@ public class EditAppAjaxProcessorServlet extends HttpServlet {
             e.printStackTrace();
         }
         if (app == null) {
-            JOptionPane.showMessageDialog(null, "The SP with name " + spName + " is not exists!");
             request.getRequestDispatcher("/view/load-service-provider.jsp?spName=" + spName).forward(request, response);
         } else {
             try {

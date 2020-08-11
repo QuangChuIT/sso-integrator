@@ -8,6 +8,7 @@ import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
+import com.bsc.sso.authentication.util.CookieUtil;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.log4j.Logger;
@@ -54,9 +55,7 @@ public class CallBackEndpoint {
     public Response authorize(@Context HttpServletRequest request)
             throws URISyntaxException, OAuthSystemException {
         try {
-
-            String typeOfSSO = request.getParameter("type");
-
+            String typeOfSSO = CookieUtil.getValue(request, SSOAuthenticationConstants.SSO_INTEGRATOR_TYPE_COOKIE);
             Map<String, String> userInfos = authenticateFactory.authentication(request, typeOfSSO);
 
             // set params from cookie
