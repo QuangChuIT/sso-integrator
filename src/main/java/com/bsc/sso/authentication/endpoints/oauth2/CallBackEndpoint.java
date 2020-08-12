@@ -55,11 +55,7 @@ public class CallBackEndpoint {
     public Response authorize(@Context HttpServletRequest request)
             throws URISyntaxException, OAuthSystemException {
         try {
-
             String typeOfSSO = CookieUtil.getValue(request, SSOAuthenticationConstants.SSO_INTEGRATOR_TYPE);
-            if (typeOfSSO == null) {
-                throw OAuthProblemException.error("Type of sso integrator is invalid !");
-            }
 
             Map<String, String> userInfos = authenticateFactory.authentication(request, typeOfSSO);
 

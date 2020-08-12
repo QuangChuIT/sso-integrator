@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class VPSAuthenticate implements Authenticate {
+
     @Override
     public Map<String, String> verify(HttpServletRequest request) throws AuthenticateException {
         try {

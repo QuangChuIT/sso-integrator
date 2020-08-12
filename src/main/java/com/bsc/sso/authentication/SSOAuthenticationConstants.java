@@ -16,6 +16,6 @@ public class SSOAuthenticationConstants {
     public static final String CALLBACK_URL_REGEXP_PREFIX = "regexp=";
     public static final String OAUTH_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri";
     public static final String OAUTH_ID_TOKEN_HINT = "id_token_hint";
-    public static final String SSO_INTEGRATOR_TYPE= "TypeSSO";
-
+    public static final String SSO_INTEGRATOR_TYPE = "TypeSSO";
+    public static final String SSO_INTEGRATOR_TYPE_PARAM = "type";
 }

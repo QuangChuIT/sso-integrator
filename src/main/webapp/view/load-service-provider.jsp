@@ -163,6 +163,7 @@
             url: postURL,
             data: data,
             success: function (data, textStatus, request) {
+                alert("Regenerate secret success!");
                 window.location = request.getResponseHeader('redirectUrl');
             }
 
