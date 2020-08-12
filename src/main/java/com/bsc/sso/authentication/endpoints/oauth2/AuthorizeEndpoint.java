@@ -6,6 +6,7 @@ import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.loginurl.LoginUrlFactory;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.util.CommonUtil;
+import com.bsc.sso.authentication.util.ConfigUtil;
 import com.bsc.sso.authentication.validate.CookieValidate;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.log4j.Logger;
@@ -54,7 +55,9 @@ public class AuthorizeEndpoint {
             throws URISyntaxException, OAuthSystemException {
         try {
             String type = request.getParameter("type");
-
+            if (type == null) {
+                type = ConfigUtil.getInstance().getProperty("sso.default.type");
+            }
             OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
 
             // validate request

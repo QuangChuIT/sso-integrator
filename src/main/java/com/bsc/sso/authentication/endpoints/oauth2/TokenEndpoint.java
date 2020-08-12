@@ -45,10 +45,10 @@ import java.util.List;
 @Path("/token")
 public class TokenEndpoint {
 
-    private OauthConsumerAppDao oauthConsumerAppDao = new OauthConsumerAppDao();
-    private OauthCodeDao oauthCodeDao = new OauthCodeDao();
-    private OauthTokenDao oauthTokenDao = new OauthTokenDao();
-    private OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
+    private final OauthConsumerAppDao oauthConsumerAppDao = new OauthConsumerAppDao();
+    private final OauthCodeDao oauthCodeDao = new OauthCodeDao();
+    private final OauthTokenDao oauthTokenDao = new OauthTokenDao();
+    private final OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
 
     @POST
     @Consumes("application/x-www-form-urlencoded")
@@ -74,6 +74,7 @@ public class TokenEndpoint {
                 String code = formParams.getFirst(OAuth.OAUTH_CODE);
                 OauthCode oauthCode = oauthCodeDao.getByCode(code);
                 if (!validateAuthCode(oauthCode, oauthConsumerApp)) {
+                    LOGGER.error("Code not match with oauth consumer app ------------------->");
                     return buildBadAuthCodeResponse();
                 }
                 username = oauthCode.getUserName();
@@ -89,7 +90,7 @@ public class TokenEndpoint {
                 // delete old token
                 oauthTokenDao.deleteToken(oauthToken);
             }
-
+            LOGGER.warn("username ------------->" + username);
             // get token expire time
             OauthToken oauthToken = buildTokenDto(oauthConsumerApp, username, clientId);
             oauthTokenDao.addToken(oauthToken);
@@ -110,6 +111,7 @@ public class TokenEndpoint {
                     .buildJSONMessage();
             return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
         } catch (Exception e) {
+            e.printStackTrace();
             LOGGER.error("Error when get token " + e);
             return null;
         }
@@ -199,17 +201,27 @@ public class TokenEndpoint {
 
     private boolean validateAuthCode(OauthCode oauthCode, OauthConsumerApp oauthConsumerApp) {
         // check code is exist
-        if (oauthCode == null) return false;
+        if (oauthCode == null) {
+            LOGGER.error("Code is null");
+            return false;
+        }
         // check code state is active
-        if (oauthCode.getState() == null || oauthCode.getState() == OauthState.INACTIVE) return false;
+        if (oauthCode.getState() == null || oauthCode.getState() == OauthState.INACTIVE){
+            LOGGER.error("Code is not active");
+            return false;
+        }
         // check consumer id
-        if (oauthCode.getConsumerId() != oauthConsumerApp.getId()) return false;
+        if (oauthCode.getConsumerId() != oauthConsumerApp.getId()) {
+            LOGGER.error("Consumer app with code not match with consumer app !!!!!");
+            return false;
+        }
         // check code period
         Date currentDate = new Date();
         Date timeCreated = oauthCode.getTimeCreated();
         if (timeCreated != null) {
             Date timeExpired = new Date(timeCreated.getTime() + oauthCode.getValidityPeriod());
             if (currentDate.after(timeExpired)) {
+                LOGGER.error("Expired time of code !!!!!");
                 return false;
             }
         }

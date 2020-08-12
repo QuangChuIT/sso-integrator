@@ -7,12 +7,13 @@ import com.bsc.sso.authentication.model.OauthToken;
 import com.bsc.sso.authentication.token.TokenUtil;
 import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
+import com.bsc.sso.authentication.util.CookieUtil;
 import com.bsc.sso.authentication.util.FileUtil;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
+import org.apache.log4j.Logger;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
-import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
@@ -22,14 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPublicKey;
+import java.text.MessageFormat;
 
 /**
  * Logout server
@@ -49,6 +49,7 @@ public class LogoutEndpoint {
     @GET
     public Response logout(@Context HttpServletRequest request)
             throws URISyntaxException, OAuthSystemException {
+        LOGGER.info("Logout from SSO");
         String redirectURI = request.getParameter(SSOAuthenticationConstants.OAUTH_LOGOUT_REDIRECT_URI);
         if (OAuthUtils.isEmpty(redirectURI)) {
             return this.buildErrorResponse("OAuth callback url needs to be provided by client.");
@@ -57,11 +58,15 @@ public class LogoutEndpoint {
         // verify token
         String tokenId = request.getParameter(SSOAuthenticationConstants.OAUTH_ID_TOKEN_HINT);
         boolean verifyToken = verifyToken(tokenId);
-        if(!verifyToken) {
+        if (!verifyToken) {
             return this.buildErrorResponse("Token is invalid.");
         }
+        String typeSSO = CookieUtil.getValue(request, SSOAuthenticationConstants.SSO_INTEGRATOR_TYPE);
+        if (typeSSO == null) {
+            typeSSO = ConfigUtil.getInstance().getProperty("sso.default.type");
+        }
 
-        boolean logout = logoutFactory.logout(request, "vps");
+        boolean logout = logoutFactory.logout(request, typeSSO);
 
         if (!logout) {
             return this.buildErrorResponse("Can not logout.");
@@ -71,17 +76,21 @@ public class LogoutEndpoint {
         OauthToken token = oauthTokenDao.getTokenByTokenId(tokenId);
         oauthTokenDao.deleteToken(token);
 
-        // reponse to redirect uri
+        // response to redirect uri
         OAuthASResponse.OAuthAuthorizationResponseBuilder builder =
                 OAuthASResponse.authorizationResponse(request, HttpServletResponse.SC_FOUND);
+        if (typeSSO.equals("cas")) {
+            String casLogoutEndpoint = ConfigUtil.getInstance().getProperty("cas.logout.endpoint");
+            String callbackSSO = ConfigUtil.getInstance().getProperty("callbackUri");
+            redirectURI = MessageFormat.format(casLogoutEndpoint, callbackSSO);
+        }
         final OAuthResponse oAuthResponse = builder.location(redirectURI).buildQueryMessage();
         URI url = new URI(oAuthResponse.getLocationUri());
 
         // delete all cookie
         NewCookie[] cookies = CommonUtil.deleteAllCookie(request);
 
-        Response response = Response.status(oAuthResponse.getResponseStatus()).location(url).cookie(cookies).build();
-        return response;
+        return Response.status(oAuthResponse.getResponseStatus()).location(url).cookie(cookies).build();
     }
 
     private Response buildErrorResponse(String description) throws URISyntaxException, OAuthSystemException {
@@ -98,7 +107,7 @@ public class LogoutEndpoint {
     private boolean verifyToken(String idToken) {
         try {
             String pemKey = FileUtil.getStringFromResource("public.pem");
-            RSAPublicKey publicKey = (RSAPublicKey)TokenUtil.toRSAKey(pemKey);
+            RSAPublicKey publicKey = (RSAPublicKey) TokenUtil.toRSAKey(pemKey);
 
             SignedJWT signedJWT = SignedJWT.parse(idToken);
             JWSVerifier verifier = new RSASSAVerifier(publicKey);
@@ -109,4 +118,6 @@ public class LogoutEndpoint {
         }
         return false;
     }
+
+    private static final Logger LOGGER = Logger.getLogger(LogoutEndpoint.class);
 }

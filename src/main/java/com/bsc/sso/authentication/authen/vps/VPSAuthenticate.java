@@ -32,8 +32,7 @@ public class VPSAuthenticate implements Authenticate {
             // get result
             if (!payload.isNull("StatusCode") && payload.getInt("StatusCode") == 200) {
                 JSONObject obj = payload.getJSONArray("Result").getJSONObject(0);
-                Map<String, String> result = toMap(obj);
-                return result;
+                return toMap(obj);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,8 +46,9 @@ public class VPSAuthenticate implements Authenticate {
         Iterator keysItr = object.keys();
         while (keysItr.hasNext()) {
             String key = (String) keysItr.next();
+            String keyPutToMap = key.toLowerCase();
             String value = object.get(key).toString();
-            map.put(key, value);
+            map.put(keyPutToMap, value);
         }
         return map;
     }

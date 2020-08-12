@@ -1,0 +1,10 @@
+ERROR   2020-08-12 09:33:37,100 [main] com.bsc.sso.authentication.xml.XmlUtil  - java.net.MalformedURLException: no protocol: <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+    <cas:authenticationSuccess>
+        <cas:user>admin_ioc</cas:user>
+        </cas:authenticationSuccess>
+</cas:serviceResponse>
+ERROR   2020-08-12 09:34:27,143 [main] com.bsc.sso.authentication.xml.XmlUtil  - java.net.MalformedURLException: no protocol: <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+    <cas:authenticationSuccess>
+        <cas:user>admin_ioc</cas:user>
+        </cas:authenticationSuccess>
+</cas:serviceResponse>

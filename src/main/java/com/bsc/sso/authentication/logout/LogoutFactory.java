@@ -1,6 +1,7 @@
 package com.bsc.sso.authentication.logout;
 
 import com.bsc.sso.authentication.logout.bkav.BkavLogout;
+import com.bsc.sso.authentication.logout.cas.CasLogout;
 import com.bsc.sso.authentication.logout.vps.VPSLogout;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ public class LogoutFactory {
                 break;
             case "vps":
                 logout = new VPSLogout();
+                break;
+            case "cas":
+                logout = new CasLogout();
                 break;
             default:
                 throw new LogoutException("Method logout is not support");

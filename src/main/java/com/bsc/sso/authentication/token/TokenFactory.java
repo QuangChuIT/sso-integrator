@@ -31,6 +31,10 @@ public class TokenFactory {
 
         // get claims of user
         Map<String, String> claims = (Map<String, String>) MemcacheUtil.getInstance().get(username);
+        if (claims == null) {
+            LOGGER.warn("Get claim from memcached return null");
+        }
+
         // add username with name 'sub'
         claims.put("sub", username);
         claims.put("aud", "sso-integrator");

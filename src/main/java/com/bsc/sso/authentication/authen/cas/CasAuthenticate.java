@@ -2,13 +2,17 @@ package com.bsc.sso.authentication.authen.cas;
 
 import com.bsc.sso.authentication.authen.Authenticate;
 import com.bsc.sso.authentication.authen.AuthenticateException;
+import com.bsc.sso.authentication.endpoints.oauth2.CallBackEndpoint;
 import com.bsc.sso.authentication.http.SendRequest;
 import com.bsc.sso.authentication.util.ConfigUtil;
+import com.bsc.sso.authentication.xml.XmlUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CasAuthenticate implements Authenticate {
@@ -23,22 +27,31 @@ public class CasAuthenticate implements Authenticate {
      */
     @Override
     public Map<String, String> verify(HttpServletRequest request) throws AuthenticateException {
+        Map<String, String> result = new HashMap<>();
         try {
             String ticket = request.getParameter("ticket");
             if (ticket == null) {
-                return null;
+                return result;
             }
-
+            LOGGER.info("Token from cas sso -> " + ticket);
             String casValidateEndpoint = ConfigUtil.getInstance().getProperty("cas.validate.token.endpoint");
             String callbackUrl = ConfigUtil.getInstance().getProperty("callbackUri");
             String casValidateUrl = MessageFormat.format(casValidateEndpoint, ticket, callbackUrl);
 
             HttpResponse response = sendRequest.getRequest(casValidateUrl);
             String responseStr = EntityUtils.toString(response.getEntity());
-
+            if (responseStr == null) {
+                return result;
+            }
+            String username = XmlUtil.getExtractUserFromCas(responseStr);
+            if (!username.equals("")) {
+                result.put("username", username);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return result;
     }
+
+    private final static Logger LOGGER = Logger.getLogger(CallBackEndpoint.class);
 }

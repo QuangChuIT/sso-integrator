@@ -8,6 +8,7 @@ import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
+import com.bsc.sso.authentication.util.CookieUtil;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.log4j.Logger;
@@ -55,7 +56,10 @@ public class CallBackEndpoint {
             throws URISyntaxException, OAuthSystemException {
         try {
 
-            String typeOfSSO = request.getParameter("type");
+            String typeOfSSO = CookieUtil.getValue(request, SSOAuthenticationConstants.SSO_INTEGRATOR_TYPE);
+            if (typeOfSSO == null) {
+                throw OAuthProblemException.error("Type of sso integrator is invalid !");
+            }
 
             Map<String, String> userInfos = authenticateFactory.authentication(request, typeOfSSO);
 
@@ -63,12 +67,12 @@ public class CallBackEndpoint {
             CommonUtil.setParamsAsCookie(request);
 
             // check account
-            if (userInfos == null || userInfos.size() == 0 || !userInfos.containsKey("UserName")) {
+            if (userInfos == null || userInfos.size() == 0 || !userInfos.containsKey("username")) {
                 throw OAuthProblemException.error("Authorize is invalid!");
             }
-            String account = userInfos.get("UserName");
+            String account = userInfos.get("username");
             // save info user to cache
-            userInfos.remove("UserName");
+            userInfos.remove("username");
             MemcacheUtil.getInstance().set(account, userInfos);
 
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder =
