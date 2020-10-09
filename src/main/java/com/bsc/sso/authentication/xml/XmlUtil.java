@@ -48,5 +48,6 @@ public class XmlUtil {
                 "        </cas:authenticationSuccess>\n" +
                 "</cas:serviceResponse>"));
     }
+
     private static final Logger LOGGER = Logger.getLogger(XmlUtil.class);
 }

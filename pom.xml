@@ -84,16 +84,19 @@
             <artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
             <version>${version.oltu}</version>
         </dependency>
+
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-servlet</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-json</artifactId>
@@ -113,6 +116,7 @@
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.axis/axis -->
         <dependency>
             <groupId>org.apache.axis</groupId>

@@ -19,10 +19,10 @@ public class CookieValidate {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
         String ssoCookie = null;
-        for (int i = 0; i < cookies.length; i++) {
-            String name = cookies[i].getName();
+        for (Cookie cookie : cookies) {
+            String name = cookie.getName();
             if (name.equals(SSOAuthenticationConstants.OAUTH_SSO_COOKIE_NAME)) {
-                ssoCookie = cookies[i].getValue();
+                ssoCookie = cookie.getValue();
                 break;
             }
         }
