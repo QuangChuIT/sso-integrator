@@ -27,7 +27,7 @@ public class OAuthUtil {
     public static String getRandomNumber() {
         try {
             String secretKey = UUID.randomUUID().toString();
-            String baseString = "000.00.00.H53/000.00.00.H53@gmail.com";//UUID.randomUUID().toString();
+            String baseString = UUID.randomUUID().toString();
 
             SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), ALGORITHM);
             Mac mac = Mac.getInstance(ALGORITHM);
@@ -35,9 +35,9 @@ public class OAuthUtil {
             byte[] rawHmac = mac.doFinal(baseString.getBytes(StandardCharsets.UTF_8));
             String random = Base64.encode(rawHmac);
             // Registry doesn't have support for these character.
-            /*random = random.replace("/", "_");
+            random = random.replace("/", "_");
             random = random.replace("=", "a");
-            random = random.replace("+", "f");*/
+            random = random.replace("+", "f");
             return random;
         } catch (Exception e) {
             log.error("Error when gen key");

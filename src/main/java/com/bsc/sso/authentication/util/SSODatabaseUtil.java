@@ -15,8 +15,8 @@ public class SSODatabaseUtil {
     public static Connection getDBConnection() {
         try {
             return ConfigUtil.getInstance().getConnectionString();
-        } catch (Exception var2) {
-            log.error("Database error. Could not get DBConnection. - " + var2.getMessage(), var2);
+        } catch (Exception e) {
+            log.error("Database error. Could not get DBConnection. - " + e.getMessage(), e);
         }
         return null;
     }

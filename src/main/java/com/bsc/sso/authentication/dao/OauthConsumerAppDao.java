@@ -7,8 +7,7 @@ import com.bsc.sso.authentication.model.OauthState;
 import com.bsc.sso.authentication.model.OauthToken;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.util.SSODatabaseUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.bsc.sso.authentication.util.StringPool;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -26,31 +25,30 @@ public class OauthConsumerAppDao {
         OauthConsumerApp oauthApp = null;
         // get from cached
         oauthApp = (OauthConsumerApp) MemcacheUtil.getInstance().get(consumerKey);
-        ;
+        Connection connection = SSODatabaseUtil.getDBConnection();
         if (oauthApp != null) return oauthApp;
         // get from database
-        Connection connection = SSODatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            prepStmt = connection.prepareStatement("select id, consumer_key, consumer_secret, app_name, app_state, callback_url, token_expire_time, refresh_token_expire_time from oauth2_consumer_apps where consumer_key=?");
-            prepStmt.setString(1, consumerKey);
-            ResultSet rSet = prepStmt.executeQuery();
-            while (rSet.next()) {
-                oauthApp = new OauthConsumerApp();
-                oauthApp.setId(rSet.getInt(1));
-                oauthApp.setConsumerKey(rSet.getString(2));
-                oauthApp.setConsumerSecret(rSet.getString(3));
-                oauthApp.setAppName(rSet.getString(4));
-                String appState = rSet.getString(5);
-                if (appState != null && !appState.isEmpty()) {
-                    OauthState state = OauthState.valueOf(appState);
-                    oauthApp.setAppState(state);
+            if (connection != null) {
+                prepStmt = connection.prepareStatement(StringPool.GET_CONSUMER_APP_BY_CLIENT_ID);
+                prepStmt.setString(1, consumerKey);
+                ResultSet rSet = prepStmt.executeQuery();
+                while (rSet.next()) {
+                    oauthApp = new OauthConsumerApp();
+                    oauthApp.setId(rSet.getInt(1));
+                    oauthApp.setConsumerKey(rSet.getString(2));
+                    oauthApp.setConsumerSecret(rSet.getString(3));
+                    oauthApp.setAppName(rSet.getString(4));
+                    String appState = rSet.getString(5);
+                    if (appState != null && !appState.isEmpty()) {
+                        OauthState state = OauthState.valueOf(appState);
+                        oauthApp.setAppState(state);
+                    }
+                    oauthApp.setCallbackUrl(rSet.getString(6));
+                    oauthApp.setTokenExpireTime(rSet.getLong(7));
+                    oauthApp.setRefreshTokenExpireTime(rSet.getLong(8));
                 }
-                oauthApp.setCallbackUrl(rSet.getString(6));
-                oauthApp.setTokenExpireTime(rSet.getLong(7));
-                oauthApp.setRefreshTokenExpireTime(rSet.getLong(8));
-                // only select first result
-                break;
             }
             return oauthApp;
         } catch (SQLException e) {

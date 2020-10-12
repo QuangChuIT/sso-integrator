@@ -3,9 +3,9 @@ package com.bsc.sso.authentication.dao;
 import com.bsc.sso.authentication.model.OauthCode;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.model.OauthState;
-import com.bsc.sso.authentication.model.OauthToken;
 import com.bsc.sso.authentication.util.MemcacheUtil;
 import com.bsc.sso.authentication.util.SSODatabaseUtil;
+import com.bsc.sso.authentication.util.StringPool;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -32,8 +32,7 @@ public class OauthCodeDao {
         Connection connection = SSODatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            prepStmt = connection.prepareStatement("insert into oauth2_authorization_code (code, consumer_id, username, state, time_created, validity_period) " +
-                    "values (?, ?, ?, ?, ?, ?)");
+            prepStmt = connection.prepareStatement(StringPool.ADD_AUTH_CODE_QUERY);
             prepStmt.setString(1, oauthCode.getCode());
             prepStmt.setInt(2, oauthCode.getConsumerId());
             prepStmt.setString(3, oauthCode.getUserName());
@@ -80,7 +79,7 @@ public class OauthCodeDao {
         Connection connection = SSODatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            prepStmt = connection.prepareStatement("select id, code, consumer_id, username, state, time_created, validity_period from oauth2_authorization_code where code=?");
+            prepStmt = connection.prepareStatement(StringPool.GET_BY_CODE);
             prepStmt.setString(1, authCode);
             ResultSet rSet = prepStmt.executeQuery();
             while (rSet.next()) {

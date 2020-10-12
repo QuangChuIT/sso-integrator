@@ -27,7 +27,7 @@ public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static MessageDigest md;
 
-    private UserDao userDao = new UserDao();
+    private final UserDao userDao = new UserDao();
 
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
@@ -35,9 +35,8 @@ public class LoginServlet extends HttpServlet {
         // get request parameters for userID and password
         String user = request.getParameter("user");
         String pwd = request.getParameter("pwd");
-
         //verify username password
-        User authenUser = userDao.getByUsername(user);
+        User authUser = userDao.getByUsername(user);
         String pass = null;
         try {
             pass = cryptWithMD5Util.cryptWithMD5(pwd);
@@ -45,7 +44,7 @@ public class LoginServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        if(authenUser != null && authenUser.getPassword().equals(pass)){
+        if(authUser != null && authUser.getPassword().equals(pass)){
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             response.sendRedirect("/service-providers");

@@ -136,7 +136,7 @@ public class SendRequest {
         try {
             return new HttpGet(endpoint);
         } catch (Exception e) {
-            throw new Exception("Error when call get endpoint" + endpoint + "in Hue Authenticator");
+            throw new Exception("Error when call get endpoint" + endpoint + "in Cas Authenticator");
         }
     }
 
