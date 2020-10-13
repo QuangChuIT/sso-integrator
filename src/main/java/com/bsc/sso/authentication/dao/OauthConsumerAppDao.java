@@ -25,13 +25,16 @@ public class OauthConsumerAppDao {
         OauthConsumerApp oauthApp = null;
         // get from cached
         oauthApp = (OauthConsumerApp) MemcacheUtil.getInstance().get(consumerKey);
-        Connection connection = SSODatabaseUtil.getDBConnection();
-        if (oauthApp != null) return oauthApp;
-        // get from database
-        PreparedStatement prepStmt = null;
+        log.info("Get consumer app from cached success !!!!!!!!!!!!!!!!!");
+        if (oauthApp != null) {
+            log.info("Found consumer app in cached " + oauthApp.getAppName() + " !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            return oauthApp;
+        }
+        // get from databas
         try {
+            Connection connection = SSODatabaseUtil.getDBConnection();
             if (connection != null) {
-                prepStmt = connection.prepareStatement(StringPool.GET_CONSUMER_APP_BY_CLIENT_ID);
+                PreparedStatement prepStmt = connection.prepareStatement(StringPool.GET_CONSUMER_APP_BY_CLIENT_ID);
                 prepStmt.setString(1, consumerKey);
                 ResultSet rSet = prepStmt.executeQuery();
                 while (rSet.next()) {
@@ -49,14 +52,13 @@ public class OauthConsumerAppDao {
                     oauthApp.setTokenExpireTime(rSet.getLong(7));
                     oauthApp.setRefreshTokenExpireTime(rSet.getLong(8));
                 }
+                SSODatabaseUtil.closeStatement(prepStmt);
+                SSODatabaseUtil.closeConnection(connection);
             }
             return oauthApp;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            SSODatabaseUtil.closeStatement(prepStmt);
-            SSODatabaseUtil.closeConnection(connection);
         }
     }
 

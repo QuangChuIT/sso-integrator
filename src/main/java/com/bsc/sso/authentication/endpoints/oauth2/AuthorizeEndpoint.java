@@ -129,7 +129,7 @@ public class AuthorizeEndpoint {
      */
     private Response generateAuthCode(OAuthAuthzRequest oauthRequest, OAuthASResponse.OAuthAuthorizationResponseBuilder builder, String username)
             throws URISyntaxException, OAuthSystemException {
-
+        LOGGER.info("Prepare generate code for username " + username + " and " + oauthRequest.getClientId());
         // generate auth code
         OAuthIssuerImpl oauthIssuerImpl = new OAuthIssuerImpl(new UUIDValueGenerator());
         final String authorizationCode = oauthIssuerImpl.authorizationCode();

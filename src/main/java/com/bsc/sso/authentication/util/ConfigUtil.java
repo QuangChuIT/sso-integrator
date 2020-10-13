@@ -41,6 +41,7 @@ public class ConfigUtil {
     public Connection getConnectionString() throws Exception {
         Connection connection = dataSource.getConnection();
         connection.setAutoCommit(false);
+        log.info("Get connection success !!!!!!!!!!!!!!!!!!!!!");
         return connection;
     }
 
@@ -57,7 +58,7 @@ public class ConfigUtil {
             String dbName = document.getElementsByTagName("DBName").item(0).getTextContent();
             String userName = document.getElementsByTagName("UserName").item(0).getTextContent();
             String password = document.getElementsByTagName("Password").item(0).getTextContent();
-            dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            dataSource.setDriverClassName("com.mysql.jdbc.Driver");
             dataSource.setUrl(dbName);
             dataSource.setUsername(userName);
             dataSource.setPassword(password);

@@ -28,25 +28,26 @@ public class OauthCodeDao {
         oauthCode.setState(OauthState.ACTIVE);
         oauthCode.setTimeCreated(new Date());
         oauthCode.setValidityPeriod(TIME_EXPIRED);
-
         Connection connection = SSODatabaseUtil.getDBConnection();
-        PreparedStatement prepStmt = null;
         try {
-            prepStmt = connection.prepareStatement(StringPool.ADD_AUTH_CODE_QUERY);
-            prepStmt.setString(1, oauthCode.getCode());
-            prepStmt.setInt(2, oauthCode.getConsumerId());
-            prepStmt.setString(3, oauthCode.getUserName());
-            prepStmt.setString(4, oauthCode.getState().toString());
-            prepStmt.setTimestamp(5, new Timestamp(oauthCode.getTimeCreated().getTime()));
-            prepStmt.setLong(6, oauthCode.getValidityPeriod());
-            prepStmt.execute();
-            SSODatabaseUtil.commitTransaction(connection);
-            // save to cache
-            MemcacheUtil.getInstance().set(code, oauthCode);
+            if (connection != null) {
+                PreparedStatement prepStmt = connection.prepareStatement(StringPool.ADD_AUTH_CODE_QUERY);
+                prepStmt.setString(1, oauthCode.getCode());
+                prepStmt.setInt(2, oauthCode.getConsumerId());
+                prepStmt.setString(3, oauthCode.getUserName());
+                prepStmt.setString(4, oauthCode.getState().toString());
+                prepStmt.setTimestamp(5, new Timestamp(oauthCode.getTimeCreated().getTime()));
+                prepStmt.setLong(6, oauthCode.getValidityPeriod());
+                prepStmt.execute();
+                SSODatabaseUtil.commitTransaction(connection);
+                // save to cache
+                MemcacheUtil.getInstance().set(code, oauthCode);
+                SSODatabaseUtil.closeStatement(prepStmt);
+            }
+
         } catch (SQLException e) {
             SSODatabaseUtil.rollbackTransaction(connection);
         } finally {
-            SSODatabaseUtil.closeStatement(prepStmt);
             SSODatabaseUtil.closeConnection(connection);
         }
     }
