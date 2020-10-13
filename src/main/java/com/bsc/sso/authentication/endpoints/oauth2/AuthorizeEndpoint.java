@@ -54,15 +54,16 @@ public class AuthorizeEndpoint {
     public Response authorize(@Context HttpServletRequest request)
             throws URISyntaxException, OAuthSystemException {
         try {
+            LOGGER.info("Request received by authorize !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             String type = request.getParameter("type");
             if (type == null) {
                 type = ConfigUtil.getInstance().getProperty("sso.default.type");
             }
             OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
-
+            LOGGER.info("Prepare validate request for oauth request with client id " + oauthRequest.getClientId());
             // validate request
             this.validate(oauthRequest);
-
+            LOGGER.info("validate request for oauth request with client id " + oauthRequest.getClientId() + " success !!!!!!!!!!!!!!!!!!!!!!!");
             //create response for authorize endpoint
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder =
                     OAuthASResponse.authorizationResponse(request, HttpServletResponse.SC_FOUND);
@@ -98,7 +99,9 @@ public class AuthorizeEndpoint {
     private void validate(OAuthAuthzRequest oauthRequest) throws OAuthProblemException {
         // validate client id
         String clientId = oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID);
+        LOGGER.info("Get consumer app from database with client id " + clientId);
         OauthConsumerApp oauthConsumerApp = consumerAppDao.getByConsumerKey(clientId);
+        LOGGER.info("Consumer app from database with client id " + clientId + " app name " + oauthConsumerApp.getAppName());
         if (!oauthConsumerAppValidate.checkClientId(oauthConsumerApp)) {
             throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_CLIENT, "Client Id is invalid!");
         }

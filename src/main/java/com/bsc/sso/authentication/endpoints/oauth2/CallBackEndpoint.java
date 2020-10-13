@@ -120,7 +120,9 @@ public class CallBackEndpoint {
     private void validate(HttpServletRequest request) throws OAuthProblemException {
         // validate client id
         String clientId = (String) request.getAttribute(OAuth.OAUTH_CLIENT_ID);
+        log.info("Get consumer app from database with client id " + clientId);
         OauthConsumerApp oauthConsumerApp = consumerAppDao.getByConsumerKey(clientId);
+        log.info("Get consumer app from database with client id " + clientId + " success " + oauthConsumerApp.getAppName());
         if (!oauthConsumerAppValidate.checkClientId(oauthConsumerApp)) {
             throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_CLIENT, "Client Id is invalid!");
         }
