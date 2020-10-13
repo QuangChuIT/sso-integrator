@@ -189,6 +189,6 @@
     </dependencies>
 
     <build>
-        <finalName>sso-integrator</finalName>
+        <finalName>ROOT</finalName>
     </build>
 </project>
