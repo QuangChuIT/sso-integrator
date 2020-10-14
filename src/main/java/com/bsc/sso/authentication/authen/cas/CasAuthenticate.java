@@ -44,11 +44,16 @@ public class CasAuthenticate implements Authenticate {
                 return result;
             }
             String username = XmlUtil.getExtractUserFromCas(responseStr);
+            LOGGER.info("Username get from CAS " + username);
             if (!username.equals("")) {
+                if (username.contains("@")) {
+                    username = username.substring(0, username.indexOf("@"));
+                    LOGGER.info("Username get from CAS cut" + username);
+                }
                 result.put("username", username);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
         return result;
     }

@@ -9,6 +9,7 @@ import com.bsc.sso.authentication.util.MemcacheUtil;
 import org.apache.log4j.Logger;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 public class TokenFactory {
@@ -32,6 +33,7 @@ public class TokenFactory {
         // get claims of user
         Map<String, String> claims = (Map<String, String>) MemcacheUtil.getInstance().get(username);
         if (claims == null) {
+            claims = new HashMap<>();
             LOGGER.warn("Get claim from memcached return null");
         }
 

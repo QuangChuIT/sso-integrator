@@ -13,11 +13,9 @@ import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.issuer.UUIDValueGenerator;
-import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
 import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
@@ -25,7 +23,6 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
-import org.apache.oltu.oauth2.common.message.types.TokenType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +34,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Class responsible for returning tokens.
@@ -90,12 +86,15 @@ public class TokenEndpoint {
                 // delete old token
                 oauthTokenDao.deleteToken(oauthToken);
             }
+            if (username.contains("@")) {
+                username = username.substring(0, username.indexOf("@"));
+            }
             LOGGER.warn("username ------------->" + username);
             // get token expire time
             OauthToken oauthToken = buildTokenDto(oauthConsumerApp, username, clientId);
             oauthTokenDao.addToken(oauthToken);
 
-            // send respons with token
+            // send response with token
             OAuthResponse response = OAuthASResponse
                     .tokenResponse(HttpServletResponse.SC_OK)
                     .setParam("id_token", oauthToken.getToken())
@@ -206,7 +205,7 @@ public class TokenEndpoint {
             return false;
         }
         // check code state is active
-        if (oauthCode.getState() == null || oauthCode.getState() == OauthState.INACTIVE){
+        if (oauthCode.getState() == null || oauthCode.getState() == OauthState.INACTIVE) {
             LOGGER.error("Code is not active");
             return false;
         }
