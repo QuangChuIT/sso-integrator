@@ -147,6 +147,7 @@ public class TokenEndpoint {
                     return buildBadTicketResponse(Integer.parseInt(userInfo[0]));
                 }
                 username= XmlUtil.getExtractUserFromCas(userInfo[1]);
+                // get user name
             }
             if (username.contains("@")) {
                 username = username.substring(0, username.indexOf("@"));
