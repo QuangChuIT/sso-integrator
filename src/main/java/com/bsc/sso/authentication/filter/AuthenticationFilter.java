@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@WebFilter("/AuthenticationFilter")
 public class AuthenticationFilter implements Filter {
 
     private ServletContext context;
@@ -35,7 +34,7 @@ public class AuthenticationFilter implements Filter {
         HttpSession session = req.getSession(false);
 
         if((session == null || session.getAttribute("user") == null)
-                && !(uri.endsWith("html") || uri.endsWith("LoginServlet"))){
+                && !uri.endsWith("login.jsp") && !uri.endsWith("LoginServlet") && !uri.endsWith("login") ){
             this.context.log("Unauthorized access request");
             res.sendRedirect("/login");
         } else {

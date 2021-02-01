@@ -23,6 +23,7 @@
 
 <body>
 <div id="middle" class="container">
+
     <h2 style="font-family: initial">Service Providers</h2>
     <a href="/LogoutServlet" accesskey="1" title="">Logout</a>
     | <a href="/changing-password" accesskey="1" title="">Change Password</a>
