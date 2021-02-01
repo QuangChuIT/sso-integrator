@@ -11,6 +11,10 @@
             <param-name>com.sun.jersey.config.property.packages</param-name>
             <param-value>com.bsc.sso.authentication.endpoints.oauth2</param-value>
         </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.feature.DisableWADL</param-name>
+            <param-value>true</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
@@ -25,6 +29,10 @@
         <init-param>
             <param-name>com.sun.jersey.config.property.packages</param-name>
             <param-value>com.bsc.sso.authentication.endpoints.oidc</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.feature.DisableWADL</param-name>
+            <param-value>true</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

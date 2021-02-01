@@ -37,8 +37,8 @@ import java.text.MessageFormat;
 @Path("/logout")
 public class LogoutEndpoint {
 
-    private LogoutFactory logoutFactory = new LogoutFactory();
-    private OauthTokenDao oauthTokenDao = new OauthTokenDao();
+    private final LogoutFactory logoutFactory = new LogoutFactory();
+    private final OauthTokenDao oauthTokenDao = new OauthTokenDao();
 
     /**
      * @param request

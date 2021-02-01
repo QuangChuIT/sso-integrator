@@ -4,15 +4,10 @@ import com.bsc.sso.authentication.http.LoginUrlRequest;
 import com.bsc.sso.authentication.http.SendRequest;
 import com.bsc.sso.authentication.loginurl.LoginUrl;
 import com.bsc.sso.authentication.loginurl.LoginUrlException;
-import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,8 +46,11 @@ public class VPSLoginUrl implements LoginUrl {
                 return payload.getString("Result");
             }
         } catch (Exception e) {
+            LOGGER.error("Error get login url from vps sso cause " + e);
             throw new LoginUrlException("Can not get login url");
         }
         return null;
     }
+
+    private final static Logger LOGGER = Logger.getLogger(VPSLoginUrl.class);
 }

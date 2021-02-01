@@ -10,6 +10,7 @@ import com.bsc.sso.authentication.model.OauthState;
 import com.bsc.sso.authentication.model.OauthToken;
 import com.bsc.sso.authentication.token.TokenFactory;
 import com.bsc.sso.authentication.util.CommonUtil;
+import com.bsc.sso.authentication.util.CookieUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
@@ -51,6 +52,7 @@ public class TokenEndpoint {
     @Produces("application/json")
     public Response token(@Context HttpServletRequest request, final MultivaluedMap<String, String> formParams) throws OAuthSystemException {
         try {
+            LOGGER.info("Token Endpoint invoke !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! from redirect uri " + formParams.getFirst(OAuth.OAUTH_REDIRECT_URI));
             // validate params
             this.validateFormParams(formParams);
             // get client info
@@ -93,7 +95,6 @@ public class TokenEndpoint {
             // get token expire time
             OauthToken oauthToken = buildTokenDto(oauthConsumerApp, username, clientId);
             oauthTokenDao.addToken(oauthToken);
-
             // send response with token
             OAuthResponse response = OAuthASResponse
                     .tokenResponse(HttpServletResponse.SC_OK)

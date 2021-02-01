@@ -6,6 +6,7 @@ import com.bsc.sso.authentication.http.SendRequest;
 import com.bsc.sso.authentication.util.ConfigUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +37,7 @@ public class VPSAuthenticate implements Authenticate {
                 return toMap(obj);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error verify authenticate for sso integrator vps cause " + e);
         }
         return null;
     }
@@ -53,4 +54,6 @@ public class VPSAuthenticate implements Authenticate {
         }
         return map;
     }
+
+    private final static Logger LOGGER = Logger.getLogger(VPSAuthenticate.class);
 }

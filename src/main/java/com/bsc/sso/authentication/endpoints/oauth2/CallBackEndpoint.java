@@ -85,10 +85,17 @@ public class CallBackEndpoint {
             final String authorizationCode = oauthIssuerImpl.authorizationCode();
             String clientId = (String) request.getAttribute(OAuth.OAUTH_CLIENT_ID);
             oauthCodeDao.addAuthCode(authorizationCode, clientId, account);
+            // save token of vps to cookie
+            String vpsToken = request.getParameter("token");
+            if (vpsToken == null) {
+                vpsToken = "";
+            }
             builder.setCode(authorizationCode);
             String session_state = OauthSessionManager.getSessionStateParam(clientId, redirectURI, account);
             builder.setParam("session_state", session_state);
-
+            if (!vpsToken.equals("")) {
+                builder.setParam("Token", vpsToken);
+            }
             final OAuthResponse oAuthResponse = builder.location(redirectURI).buildQueryMessage();
             URI url = new URI(oAuthResponse.getLocationUri());
 
@@ -96,13 +103,14 @@ public class CallBackEndpoint {
             int cookieExpireTime = Integer.parseInt(ConfigUtil.getInstance().getProperty(SSOAuthenticationConstants.COOKIE_EXPIRE_TIME));
             String cookieValue = CommonUtil.generateCookie(account, cookieExpireTime);
             NewCookie oauthCookie = new NewCookie(SSOAuthenticationConstants.OAUTH_SSO_COOKIE_NAME, cookieValue, "/", null, null, cookieExpireTime, false);
-
-            // save token of vps to cookie
-            String vpsToken = request.getParameter("token");
-            NewCookie tokenCookie = new NewCookie(SSOAuthenticationConstants.TOKEN, vpsToken, "/", null, null, cookieExpireTime, false);
-
+            Response response;
+            if (typeOfSSO.equals("vps")) {
+                NewCookie tokenCookie = new NewCookie(SSOAuthenticationConstants.TOKEN, vpsToken, "/", null, null, cookieExpireTime, false);
+                response = Response.status(oAuthResponse.getResponseStatus()).location(url).cookie(oauthCookie).cookie(tokenCookie).build();
+            } else {
+                response = Response.status(oAuthResponse.getResponseStatus()).location(url).cookie(oauthCookie).build();
+            }
             //Send response to given URI
-            Response response = Response.status(oAuthResponse.getResponseStatus()).location(url).cookie(oauthCookie).cookie(tokenCookie).build();
             return response;
 
         } catch (OAuthProblemException e) {

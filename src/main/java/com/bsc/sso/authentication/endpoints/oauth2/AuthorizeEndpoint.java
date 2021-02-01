@@ -1,12 +1,14 @@
 package com.bsc.sso.authentication.endpoints.oauth2;
 
 import com.bsc.sso.authentication.OauthSessionManager;
+import com.bsc.sso.authentication.SSOAuthenticationConstants;
 import com.bsc.sso.authentication.dao.OauthCodeDao;
 import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.loginurl.LoginUrlFactory;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.util.CommonUtil;
 import com.bsc.sso.authentication.util.ConfigUtil;
+import com.bsc.sso.authentication.util.CookieUtil;
 import com.bsc.sso.authentication.validate.CookieValidate;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
 import org.apache.log4j.Logger;
@@ -71,7 +73,7 @@ public class AuthorizeEndpoint {
             // validate cookie, if valid, don't need redirect server url, then generate code and return
             String username = cookieValidate.authenticateCookie(request);
             if (username != null) {
-                return generateAuthCode(oauthRequest, builder, username);
+                return generateAuthCode(request, oauthRequest, builder, username);
             }
 
             // Build response and redirect to given in the request URI
@@ -127,7 +129,7 @@ public class AuthorizeEndpoint {
      * @throws URISyntaxException
      * @throws OAuthSystemException
      */
-    private Response generateAuthCode(OAuthAuthzRequest oauthRequest, OAuthASResponse.OAuthAuthorizationResponseBuilder builder, String username)
+    private Response generateAuthCode(HttpServletRequest request, OAuthAuthzRequest oauthRequest, OAuthASResponse.OAuthAuthorizationResponseBuilder builder, String username)
             throws URISyntaxException, OAuthSystemException {
         LOGGER.info("Prepare generate code for username " + username + " and " + oauthRequest.getClientId());
         // generate auth code
@@ -137,8 +139,12 @@ public class AuthorizeEndpoint {
         //Build response and redirect to given in the request URI
         String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
         oauthCodeDao.addAuthCode(authorizationCode, clientId, username);
+        String vpsToken = CookieUtil.getValue(request, SSOAuthenticationConstants.TOKEN);
         builder.setCode(authorizationCode);
         String session_state = OauthSessionManager.getSessionStateParam(clientId, redirectURI, username);
+        if (vpsToken != null) {
+            builder.setParam("Token", vpsToken);
+        }
         builder.setParam("session_state", session_state);
 
         final OAuthResponse oAuthResponse = builder.location(redirectURI).buildQueryMessage();

@@ -1,7 +1,6 @@
 package com.bsc.sso.authentication.logout.vps;
 
 import com.bsc.sso.authentication.SSOAuthenticationConstants;
-import com.bsc.sso.authentication.http.LoginUrlRequest;
 import com.bsc.sso.authentication.http.LogoutRequest;
 import com.bsc.sso.authentication.http.SendRequest;
 import com.bsc.sso.authentication.logout.Logout;
@@ -9,6 +8,7 @@ import com.bsc.sso.authentication.logout.LogoutException;
 import com.bsc.sso.authentication.util.ConfigUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.http.Cookie;
@@ -22,9 +22,9 @@ public class VPSLogout implements Logout {
             String token = null;
             // get token from cookie
             Cookie[] cookies = request.getCookies();
-            for (int i = 0; i < cookies.length; i++) {
-                String name = cookies[i].getName();
-                String value = cookies[i].getValue();
+            for (Cookie cookie : cookies) {
+                String name = cookie.getName();
+                String value = cookie.getValue();
                 if (name.equals(SSOAuthenticationConstants.TOKEN)) {
                     token = value;
                     break;
@@ -44,17 +44,21 @@ public class VPSLogout implements Logout {
 
             SendRequest sendRequest = new SendRequest();
             HttpResponse response = sendRequest.sendRequest(message, endpoint, token);
+
             String responseStr = EntityUtils.toString(response.getEntity());
-
+            LOGGER.info("Response call logout from vps " + responseStr);
             JSONObject payload = new JSONObject(responseStr);
-
+            LOGGER.info("Logout from vps result " + payload.toString());
             // get result
             if (!payload.isNull("StatusCode") && payload.getInt("StatusCode") == 200) {
+                LOGGER.info("Logout from vps result " + payload.toString());
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.info("Error logout vps sso cause " + e + " !!!!!!!!!!!!!!!!!!!!!");
         }
         return false;
     }
+
+    private final static Logger LOGGER = Logger.getLogger(VPSLogout.class);
 }

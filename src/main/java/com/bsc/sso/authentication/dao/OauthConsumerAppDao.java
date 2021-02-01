@@ -30,7 +30,7 @@ public class OauthConsumerAppDao {
             log.info("Found consumer app in cached " + oauthApp.getAppName() + " !!!!!!!!!!!!!!!!!!!!!!!!!!!");
             return oauthApp;
         }
-        // get from databas
+        // get from database
         try {
             Connection connection = SSODatabaseUtil.getDBConnection();
             if (connection != null) {
@@ -57,7 +57,7 @@ public class OauthConsumerAppDao {
             }
             return oauthApp;
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
             return null;
         }
     }
