@@ -4,15 +4,28 @@ import com.bsc.sso.authentication.SSOAuthenticationConstants;
 import com.bsc.sso.authentication.dao.OauthCodeDao;
 import com.bsc.sso.authentication.dao.OauthConsumerAppDao;
 import com.bsc.sso.authentication.dao.OauthTokenDao;
+import com.bsc.sso.authentication.http.SendRequest;
 import com.bsc.sso.authentication.model.OauthCode;
 import com.bsc.sso.authentication.model.OauthConsumerApp;
 import com.bsc.sso.authentication.model.OauthState;
 import com.bsc.sso.authentication.model.OauthToken;
 import com.bsc.sso.authentication.token.TokenFactory;
 import com.bsc.sso.authentication.util.CommonUtil;
-import com.bsc.sso.authentication.util.CookieUtil;
+import com.bsc.sso.authentication.util.ConfigUtil;
 import com.bsc.sso.authentication.validate.OauthConsumerAppValidate;
+import com.bsc.sso.authentication.xml.XmlUtil;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
@@ -34,7 +47,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.Date;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * Class responsible for returning tokens.
@@ -46,6 +61,7 @@ public class TokenEndpoint {
     private final OauthCodeDao oauthCodeDao = new OauthCodeDao();
     private final OauthTokenDao oauthTokenDao = new OauthTokenDao();
     private final OauthConsumerAppValidate oauthConsumerAppValidate = new OauthConsumerAppValidate();
+    private final SendRequest sendRequest = new SendRequest();
 
     @POST
     @Consumes("application/x-www-form-urlencoded")
@@ -87,6 +103,42 @@ public class TokenEndpoint {
                 username = oauthToken.getUserName();
                 // delete old token
                 oauthTokenDao.deleteToken(oauthToken);
+            } else if (formParams.getFirst(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
+
+                String password = formParams.getFirst(OAuth.OAUTH_PASSWORD);
+                String userName = formParams.getFirst(OAuth.OAUTH_USERNAME);
+
+                Map<String, String> body1 = new HashMap<>();
+                body1.put(OAuth.OAUTH_USERNAME, userName);
+                body1.put(OAuth.OAUTH_PASSWORD, password);
+
+                String casEndpointGrantingTicket = ConfigUtil.getInstance().getProperty("cas.endpoint.granting.ticket");
+                String[] cas = postApiCAS(casEndpointGrantingTicket, body1);
+
+                if (!cas[0].equals("201")) {
+                    return buildBadTicketResponse(Integer.parseInt(cas[0]));
+                }
+                String tgtID = getTGT(cas[1]);
+                LOGGER.info("Get TGT_ID Success =========================> " + cas[1]);
+                String urlST = casEndpointGrantingTicket + tgtID;
+                String casCallbackUrl = ConfigUtil.getInstance().getProperty("callbackUri");
+                Map<String, String> body2 = new HashMap<>();
+                body2.put("service", casCallbackUrl);
+                String[] cas2 = postApiCAS(urlST, body2);
+
+                if (!cas2[0].equals("200")) {
+                    return buildBadTicketResponse(Integer.parseInt(cas2[0]));
+                }
+                LOGGER.info("Get Ticket Success =========================> " + cas2[1]);
+                String casValidateEndpoint = ConfigUtil.getInstance().getProperty("cas.endpoint.validate.ticket");
+                String casValidateUrl = MessageFormat.format(casValidateEndpoint, casCallbackUrl, cas2[1]);
+                String[] userInfo = getApiCAS(casValidateUrl);
+
+                if (!userInfo[0].equals("200")) {
+                    return buildBadTicketResponse(Integer.parseInt(userInfo[0]));
+                }
+                username = XmlUtil.getExtractUserFromCas(userInfo[1]);
+                // get user name
             }
             if (username.contains("@")) {
                 username = username.substring(0, username.indexOf("@"));
@@ -131,6 +183,10 @@ public class TokenEndpoint {
             }
         } else if (formParams.getFirst(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) {
             if (!formParams.containsKey(OAuth.OAUTH_REFRESH_TOKEN)) {
+                throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST, "Missing code parameter value");
+            }
+        } else if (formParams.getFirst(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
+            if (!formParams.containsKey(OAuth.OAUTH_PASSWORD)) {
                 throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST, "Missing code parameter value");
             }
         } else {
@@ -199,6 +255,15 @@ public class TokenEndpoint {
         return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
     }
 
+    private Response buildBadTicketResponse(int code) throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse
+                .errorResponse(code)
+                .setError(OAuthError.TokenResponse.INVALID_GRANT)
+                .setErrorDescription("Invalid username or password")
+                .buildJSONMessage();
+        return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+    }
+
     private boolean validateAuthCode(OauthCode oauthCode, OauthConsumerApp oauthConsumerApp) {
         // check code is exist
         if (oauthCode == null) {
@@ -246,6 +311,62 @@ public class TokenEndpoint {
         }
         return true;
     }
+
+    public static String[] postApiCAS(String url, Map<String, String> body) throws IOException {
+
+        String[] result = new String[2];
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(url);
+            request.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            List<NameValuePair> form = new ArrayList<>();
+            for (String key : body.keySet()) {
+                form.add(new BasicNameValuePair(key, body.get(key)));
+            }
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
+            request.setEntity(entity);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
+                result[0] = String.valueOf(status);
+                HttpEntity httpEntity = response.getEntity();
+                if (httpEntity != null) {
+                    result[1] = EntityUtils.toString(httpEntity);
+                }
+
+            } catch (Exception e) {
+                LOGGER.error(e);
+            }
+        } catch (IOException e) {
+            LOGGER.error(e);
+        }
+        return result;
+    }
+
+    public static String[] getApiCAS(String url) throws IOException {
+        String[] result = new String[2];
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(url);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
+                result[0] = String.valueOf(status);
+                HttpEntity httpEntity = response.getEntity();
+                if (httpEntity != null) {
+                    result[1] = EntityUtils.toString(httpEntity);
+                }
+
+            } catch (Exception e) {
+                LOGGER.error(e);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
+        return result;
+    }
+
+    public static String getTGT(String str) {
+        String url = str.substring(str.indexOf("=") + 2, str.indexOf("method") - 2);
+        return url.substring(url.lastIndexOf("/"), url.length());
+    }
+
 
     private static final Logger LOGGER = Logger.getLogger(TokenEndpoint.class);
 }

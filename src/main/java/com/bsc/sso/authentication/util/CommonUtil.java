@@ -77,7 +77,7 @@ public class CommonUtil {
             typeSSO = ConfigUtil.getInstance().getProperty("sso.default.type");
         }
         String domainName = request.getServerName();
-        String domainNamePrefix = domainName.substring(domainName.indexOf("."), domainName.length());
+        //String domainNamePrefix = domainName.substring(domainName.indexOf("."), domainName.length());
         result[0] = new NewCookie(SSOAuthenticationConstants.CLIENT_ID_COOKIE, clientId, "/", null, null, Integer.MAX_VALUE, false);
         result[1] = new NewCookie(SSOAuthenticationConstants.RESPONSE_TYPE_COOKIE, responseType, "/", null, null, Integer.MAX_VALUE, false);
         result[2] = new NewCookie(SSOAuthenticationConstants.REDIRECT_URI_COOKIE, redirectUri, "/", null, null, Integer.MAX_VALUE, false);

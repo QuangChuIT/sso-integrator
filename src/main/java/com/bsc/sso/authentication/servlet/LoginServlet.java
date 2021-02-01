@@ -47,7 +47,7 @@ public class LoginServlet extends HttpServlet {
         if(authUser != null && authUser.getPassword().equals(pass)){
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
-            response.sendRedirect("/service-providers");
+            response.sendRedirect( "/service-providers");
         } else {
             request.setAttribute("err", "Either user name or password is wrong.");
             RequestDispatcher rd = getServletContext().getRequestDispatcher("/login");
